@@ -8,26 +8,9 @@ scikit-learn
 streamlit
 joblib
 
-# Machine Learning
-scikit-learn
-xgboost
-
-# Web App
 streamlit
-
-# Model Tracking (optional)
-mlflow
-
-# File Handling
+plotly==5.18.0
+pandas
+numpy
+scikit-learn
 joblib
-
-# Date Handling
-python-dateutil
-
-# Optional (for maps & advanced dashboards)
-geopandas
-folium
-streamlit-folium
-
-# Optional (for better performance)
-pyarrow
