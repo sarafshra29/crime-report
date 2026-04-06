@@ -1,0 +1,35 @@
+This project uses a dedicated utility module (utils.py) to keep the code clean, modular, and reusable. These utilities handle common operations such as data loading, preprocessing, KPI calculations, and model predictions.
+
+🔧 Key Utilities Used
+Data Loading
+Efficiently loads datasets using Pandas
+Handles file errors gracefully
+Data Preprocessing
+Converts date columns into datetime format
+Extracts features like Year, Month, Day
+Handles missing values
+Feature Engineering
+Creates additional features like:
+Hour of crime
+Day of week
+Improves model performance and insights
+KPI Calculations
+Total number of crimes
+Arrest rate (%)
+Most frequent crime type
+Filtering Functions
+Filter data by:
+Year
+Crime type
+Used in interactive dashboard controls
+Aggregation Functions
+Crime trends over time
+Top crime categories
+Supports visualization charts
+Model Utilities
+Load trained ML models (joblib)
+Perform predictions on new data
+📁 File Structure Reference
+utils.py        # Contains all helper functions
+app.py          # Main Streamlit dashboard
+💡 Why Utilities Are Important
