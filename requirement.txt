@@ -1,11 +1,12 @@
 # Core Libraries
 pandas
 numpy
-
-# Visualization
 matplotlib
 seaborn
-
+plotly
+scikit-learn
+streamlit
+joblib
 
 # Machine Learning
 scikit-learn
