@@ -1,0 +1,32 @@
+# Core Libraries
+pandas
+numpy
+
+# Visualization
+matplotlib
+seaborn
+plotly
+
+# Machine Learning
+scikit-learn
+xgboost
+
+# Web App
+streamlit
+
+# Model Tracking (optional)
+mlflow
+
+# File Handling
+joblib
+
+# Date Handling
+python-dateutil
+
+# Optional (for maps & advanced dashboards)
+geopandas
+folium
+streamlit-folium
+
+# Optional (for better performance)
+pyarrow
