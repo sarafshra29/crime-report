@@ -5,7 +5,7 @@ numpy
 # Visualization
 matplotlib
 seaborn
-plotly
+
 
 # Machine Learning
 scikit-learn
