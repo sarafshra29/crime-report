@@ -262,13 +262,13 @@ elif page == "🌍 Geographic Analysis":
                 popup=f"Crime: {row['Primary Type']}<br>Location: {row['Location Description']}"
             ).add_to(m)
 
-if folium_available:
-        if st_folium:
-            st_folium(m, width=800, height=600)
+        if folium_available:
+            if st_folium:
+                st_folium(m, width=800, height=600)
+            else:
+                st.warning("streamlit_folium is not installed; install with `pip install streamlit-folium` to enable the map display.")
         else:
-            st.warning("streamlit_folium is not installed; install with `pip install streamlit-folium` to enable the map display.")
-    else:
-        st.warning("Folium is not installed; geographic map rendering is unavailable. Install with `pip install folium streamlit-folium`.")
+            st.warning("Folium is not installed; geographic map rendering is unavailable. Install with `pip install folium streamlit-folium`.")
 
 
 # ================================
