@@ -44,9 +44,18 @@ st.markdown("""
 # 📂 Load Data (safe)
 @st.cache_data
 def load_data():
-    return pd.read_csv("clustered_crime_data.csv", nrows=5000,dtype_backend="pyarrow")
+    try:
+        return pd.read_csv("clustered_crime_data.csv", nrows=5000)
+    except FileNotFoundError:
+        st.error("Data file 'clustered_crime_data.csv' not found in the app directory.")
+        return pd.DataFrame()
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        return pd.DataFrame()
 
 df = load_data()
+if df.empty:
+    st.stop()
 
 # 🎯 Sidebar Navigation with improved styling
 st.sidebar.markdown('<div class="sidebar-header">🚔 Crime Analytics Dashboard</div>', unsafe_allow_html=True)
@@ -84,8 +93,8 @@ if page == "📊 Overview":
 
     with col3:
         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        arrest_rate = (df['Arrest'].sum() / len(df) * 100, 1)
-        st.metric("Arrest Rate", f"{arrest_rate}%")
+        arrest_rate = df['Arrest'].mean() * 100
+        st.metric("Arrest Rate", f"{arrest_rate:.1f}%")
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col4:
@@ -214,27 +223,30 @@ elif page == "🌍 Geographic Analysis":
     else:
         filtered_df = df.dropna(subset=['Latitude', 'Longitude'])
 
-    sample_df = filtered_df.sample(min(sample_size, len(filtered_df)))
-
-    # Create map
-    m = folium.Map(location=[41.87, -87.62], zoom_start=10)
-
-    # Add markers
-    for _, row in sample_df.iterrows():
-        folium.CircleMarker(
-            location=[row['Latitude'], row['Longitude']],
-            radius=3,
-            color="red",
-            fill=True,
-            fill_color="red",
-            fill_opacity=0.6,
-            popup=f"Crime: {row['Primary Type']}<br>Location: {row['Location Description']}"
-        ).add_to(m)
-
-    if st_folium:
-        st_folium(m, width=800, height=600)
+    if filtered_df.empty:
+        st.warning("No geographic data available for the selected crime type.")
     else:
-        st.warning("streamlit_folium is not installed; install with `pip install streamlit-folium` to enable the map display.")
+        sample_df = filtered_df.sample(min(sample_size, len(filtered_df)))
+
+        # Create map
+        m = folium.Map(location=[41.87, -87.62], zoom_start=10)
+
+        # Add markers
+        for _, row in sample_df.iterrows():
+            folium.CircleMarker(
+                location=[row['Latitude'], row['Longitude']],
+                radius=3,
+                color="red",
+                fill=True,
+                fill_color="red",
+                fill_opacity=0.6,
+                popup=f"Crime: {row['Primary Type']}<br>Location: {row['Location Description']}"
+            ).add_to(m)
+
+        if st_folium:
+            st_folium(m, width=800, height=600)
+        else:
+            st.warning("streamlit_folium is not installed; install with `pip install streamlit-folium` to enable the map display.")
 
 
 # ================================
@@ -347,17 +359,19 @@ elif page == "🧠 Dimensionality Reduction":
                 col1, col2 = st.columns(2)
 
                 with col1:
-                    sample_size = st.slider("Sample Size for PCA", 1000, 10000, 5000, key="pca_sample")
+                    max_sample = min(10000, len(pca_df))
+                    default_sample = min(5000, max_sample)
+                    sample_size = st.slider("Sample Size for PCA", 100, max_sample, default_sample, key="pca_sample")
 
                 with col2:
                     color_by = st.selectbox("Color by", ["None", "Cluster"], key="pca_color")
 
-                sample_pca = pca_df.sample(min(sample_size, len(pca_df)))
+                sample_n = min(sample_size, len(pca_df), len(df))
+                sample_pca = pca_df.sample(sample_n)
 
                 if color_by == "Cluster" and 'KMeans_Cluster' in df.columns:
-                    # Merge with cluster info
-                    cluster_info = df[['KMeans_Cluster']].sample(min(sample_size, len(pca_df)))
-                    sample_pca = sample_pca.join(cluster_info.reset_index(drop=True))
+                    cluster_info = df[['KMeans_Cluster']].sample(sample_n).reset_index(drop=True)
+                    sample_pca = sample_pca.reset_index(drop=True).join(cluster_info)
 
                     fig = px.scatter(
                         sample_pca,
@@ -447,14 +461,10 @@ elif page == "🤖 ML Model Tracking":
     col1, col2 = st.columns(2)
 
     with col1:
-        if st.button("🚀 Open MLflow UI", type="primary", use_container_width=True):
-            st.markdown("""
-            <script>
-                window.open('http://127.0.0.1:5000', '_blank');
-            </script>
-            """, unsafe_allow_html=True)
+        if st.button("🚀 Open MLflow UI", type="primary"):
+            st.write("[Open MLflow UI](http://127.0.0.1:5000)")
 
-        st.success("Click above to open MLflow UI in a new tab")
+        st.success("Click the button above or use the link to open MLflow UI in a new tab")
 
     with col2:
         st.markdown("### 📊 Model Performance")
