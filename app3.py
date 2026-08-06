@@ -1,12 +1,25 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+
+try:
+    import plotly.express as px
+    plotly_available = True
+except ImportError:
+    px = None
+    plotly_available = False
+
 import folium
 try:
     from streamlit_folium import st_folium
 except ImportError:
     st_folium = None
-import matplotlib.pyplot as plt
+
+try:
+    import matplotlib.pyplot as plt
+    matplotlib_available = True
+except ImportError:
+    plt = None
+    matplotlib_available = False
 
 
 st.set_page_config(
