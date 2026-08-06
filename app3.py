@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from pathlib import Path
 
 try:
     import plotly.express as px
@@ -63,10 +64,13 @@ st.markdown("""
 # 📂 Load Data (safe)
 @st.cache_data
 def load_data():
+    app_dir = Path(__file__).resolve().parent
+    data_file = app_dir / "clustered_crime_data.csv"
+
     try:
-        return pd.read_csv("clustered_crime_data.csv", nrows=5000)
+        return pd.read_csv(data_file, nrows=5000)
     except FileNotFoundError:
-        st.error("Data file 'clustered_crime_data.csv' not found in the app directory.")
+        st.error(f"Data file '{data_file}' not found. Please place clustered_crime_data.csv in the app directory.")
         return pd.DataFrame()
     except Exception as e:
         st.error(f"Error loading data: {e}")
