@@ -9,6 +9,32 @@ except ImportError:
     px = None
     plotly_available = False
 
+
+def find_data_file(filename: str) -> Path | None:
+    app_dir = Path(__file__).resolve().parent
+    cwd = Path.cwd()
+    candidates = [
+        app_dir / filename,
+        cwd / filename,
+        Path('/mount/src/crime-report') / filename,
+        app_dir.parent / filename,
+        cwd.parent / filename,
+    ]
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    for base in [app_dir, cwd]:
+        current = base
+        for _ in range(3):
+            candidate = current / filename
+            if candidate.exists():
+                return candidate
+            current = current.parent
+
+    return None
+
 try:
     import folium
     folium_available = True
@@ -64,16 +90,18 @@ st.markdown("""
 # 📂 Load Data (safe)
 @st.cache_data
 def load_data():
-    app_dir = Path(__file__).resolve().parent
-    data_file = app_dir / "clustered_crime_data.csv"
+    data_file = find_data_file('clustered_crime_data.csv')
+    if data_file is None:
+        st.error(
+            "Data file 'clustered_crime_data.csv' not found. Tried the following paths: "
+            f"{Path(__file__).resolve().parent}, {Path.cwd()}, /mount/src/crime-report"
+        )
+        return pd.DataFrame()
 
     try:
         return pd.read_csv(data_file, nrows=5000)
-    except FileNotFoundError:
-        st.error(f"Data file '{data_file}' not found. Please place clustered_crime_data.csv in the app directory.")
-        return pd.DataFrame()
     except Exception as e:
-        st.error(f"Error loading data: {e}")
+        st.error(f"Error loading data from {data_file}: {e}")
         return pd.DataFrame()
 
 df = load_data()
