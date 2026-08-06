@@ -91,6 +91,12 @@ st.markdown("""
 @st.cache_data
 def load_data():
     data_file = find_data_file('clustered_crime_data.csv')
+    fallback_file = find_data_file('crimes_all_years.csv')
+
+    if data_file is None and fallback_file is not None:
+        st.warning("'clustered_crime_data.csv' not found. Using 'crimes_all_years.csv' as a fallback dataset.")
+        data_file = fallback_file
+
     if data_file is None:
         st.error(
             "Data file 'clustered_crime_data.csv' not found. Tried the following paths: "
