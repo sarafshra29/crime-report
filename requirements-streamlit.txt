@@ -1,0 +1,7 @@
+streamlit
+pandas
+plotly==6.7.0
+folium
+streamlit-folium
+matplotlib
+mlflow
