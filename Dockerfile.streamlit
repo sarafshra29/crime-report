@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Ensure the dataset files are included in the image
+COPY clustered_crime_data.csv ./
+COPY pca_crime_data.csv ./
+COPY . .
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "app3.py", "--server.address=0.0.0.0", "--server.port=8501", "--server.headless=true"]
