@@ -13,25 +13,27 @@ except ImportError:
 def find_data_file(filename: str) -> Path | None:
     app_dir = Path(__file__).resolve().parent
     cwd = Path.cwd()
-    candidates = [
-        app_dir / filename,
-        cwd / filename,
-        Path('/mount/src/crime-report') / filename,
-        app_dir.parent / filename,
-        cwd.parent / filename,
+    search_roots = [
+        app_dir,
+        cwd,
+        app_dir.parent,
+        cwd.parent,
+        Path('/app'),
+        Path('/workspace'),
+        Path('/mount/src'),
     ]
 
-    for candidate in candidates:
-        if candidate.exists():
-            return candidate
+    for root in search_roots:
+        if not root.exists():
+            continue
 
-    for base in [app_dir, cwd]:
-        current = base
-        for _ in range(3):
-            candidate = current / filename
-            if candidate.exists():
+        direct_candidate = root / filename
+        if direct_candidate.exists() and direct_candidate.is_file():
+            return direct_candidate
+
+        for candidate in root.rglob(filename):
+            if candidate.is_file():
                 return candidate
-            current = current.parent
 
     return None
 
@@ -99,8 +101,8 @@ def load_data():
 
     if data_file is None:
         st.error(
-            "Data file 'clustered_crime_data.csv' not found. Tried the following paths: "
-            f"{Path(__file__).resolve().parent}, {Path.cwd()}, /mount/src/crime-report"
+            "Data file 'clustered_crime_data.csv' was not found in the app workspace. "
+            "Please make sure the CSV is uploaded to the repository or mounted into the app environment."
         )
         return pd.DataFrame()
 
